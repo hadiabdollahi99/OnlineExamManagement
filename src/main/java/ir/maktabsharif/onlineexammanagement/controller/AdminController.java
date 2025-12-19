@@ -2,13 +2,13 @@ package ir.maktabsharif.onlineexammanagement.controller;
 
 import ir.maktabsharif.onlineexammanagement.model.*;
 import ir.maktabsharif.onlineexammanagement.service.CourseService;
-import ir.maktabsharif.onlineexammanagement.service.StudentCoursesService;
 import ir.maktabsharif.onlineexammanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Controller

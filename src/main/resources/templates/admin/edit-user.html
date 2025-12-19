@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش کاربر</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        .container { max-width: 500px; margin: auto; border: 1px solid #ddd; padding: 20px; }
+        input, select { width: 100%; padding: 8px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+        .btn-save { background: green; color: white; border: none; }
+        .btn-cancel { background: gray; color: white; border: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>ویرایش کاربر</h2>
+
+    <form th:action="@{/admin/users/{id}/edit(id=${user.id})}" method="post">
+        <input type="text" name="firstName" th:value="${user.firstName}" required>
+        <br>
+        <input type="text" name="lastName" th:value="${user.lastName}" required>
+        <br>
+        <input type="email" name="email" th:value="${user.email}" required>
+        <br>
+        <input type="text" name="username" th:value="${user.username}" required>
+        <br>
+        <input type="password" name="newPassword" placeholder="رمز جدید (اختیاری)">
+        <br>
+
+        <select name="role">
+            <option th:each="role : ${roles}"
+                    th:value="${role}"
+                    th:text="${role}"
+                    th:selected="${user.role == role}"></option>
+        </select>
+        <br><br>
+
+        <button type="submit" class="btn-save">ذخیره</button>
+        <a href="/admin/users">
+            <button type="button" class="btn-cancel">لغو</button>
+        </a>
+    </form>
+</div>
+</body>
+</html>

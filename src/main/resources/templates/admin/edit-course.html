@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش دوره</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5;}
+        .menu { background: #333; color: white; padding: 15px; margin-bottom: 20px;
+        }
+        .menu a { color: white; margin: 0 15px; text-decoration: none;}
+        .menu a:hover { text-decoration: underline; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border: 1px solid #ddd;}
+        h2 { color: #333; margin-bottom: 20px; text-align: center;}
+        .form-group { margin-bottom: 15px;}
+        label { display: block; margin-bottom: 5px; color: #555;}
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box;}
+        textarea { height: 100px; resize: vertical;}
+        .btn { padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; font-size: 16px;}
+        .btn-save {background: #28a745; color: white;}
+        .btn-save:hover { background: #218838;}
+        .btn-cancel { background: #6c757d; color: white;}
+        .btn-cancel:hover {background: #5a6268;}
+        .buttons {text-align: center;margin-top: 20px;}
+        .error {color: #dc3545;font-size: 14px;margin-top: 5px;}
+        .course-info {background: #f8f9fa;padding: 10px;margin-bottom: 20px;border-right: 4px solid #007bff;}
+        .info-item {margin: 5px 0;}
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/admin/dashboard">داشبورد</a>
+    <a href="/admin/users">کاربران</a>
+    <a href="/admin/courses">دوره‌ها</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form>
+</div>
+
+<div class="container">
+    <h2>ویرایش دوره</h2>
+    <div class="course-info">
+        <div class="info-item">
+            <strong>کد دوره:</strong> <span th:text="${course.courseCode}"></span>
+        </div>
+        <div class="info-item">
+            <strong>استاد:</strong>
+            <span th:if="${course.teacher != null}"
+                  th:text="${course.teacher.firstName + ' ' + course.teacher.lastName}">
+                </span>
+            <span th:unless="${course.teacher != null}" style="color: #999;">تعیین نشده</span>
+        </div>
+        <div class="info-item">
+            <strong>تعداد دانشجویان:</strong> <span th:text="${course.students.size()}"></span>
+        </div>
+    </div>
+    <form th:action="@{/admin/courses/{id}/edit(id=${course.id})}"
+          th:object="${course}" method="post">
+
+        <div class="form-group">
+            <label for="title">عنوان دوره:</label>
+            <input type="text" id="title" th:field="*{title}" required>
+            <div class="error" th:if="${#fields.hasErrors('title')}"
+                 th:errors="*{title}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">توضیحات دوره:</label>
+            <textarea id="description" th:field="*{description}" required></textarea>
+            <div class="error" th:if="${#fields.hasErrors('description')}"
+                 th:errors="*{description}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="courseCode">کد دوره:</label>
+            <input type="text" id="courseCode" th:field="*{courseCode}" readonly
+                   style="background: #f8f9fa;">
+        </div>
+
+        <div class="form-group">
+            <label for="startDate">تاریخ شروع:</label>
+            <input type="date" id="startDate" name="startDate"
+                   th:value="${#temporals.format(course.startDate, 'yyyy-MM-dd')}"
+                   required>
+            <div class="error" th:if="${#fields.hasErrors('startDate')}"
+                 th:errors="*{startDate}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="endDate">تاریخ پایان:</label>
+            <input type="date" id="endDate" name="endDate"
+                   th:value="${#temporals.format(course.endDate, 'yyyy-MM-dd')}"
+                   required>
+            <div class="error" th:if="${#fields.hasErrors('endDate')}"
+                 th:errors="*{endDate}"></div>
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="btn btn-save">💾 ذخیره تغییرات</button>
+            <a href="/admin/courses">
+                <button type="button" class="btn btn-cancel">❌ لغو</button>
+            </a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

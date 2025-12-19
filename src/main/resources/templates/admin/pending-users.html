@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>در انتظار تایید</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        button { padding: 5px 10px; margin: 2px; }
+        .btn-approve { background: green; color: white; border: none; }
+        .btn-reject { background: red; color: white; border: none; }
+        .no-data { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/admin/dashboard">داشبورد</a>
+    <a href="/admin/users">کاربران</a>
+    <a href="/admin/users/pending">در انتظار</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form></div>
+
+<h2>کاربران در انتظار تایید</h2>
+<a href="/admin/users">بازگشت</a>
+
+<div th:if="${users.empty}" class="no-data">
+    کاربری در انتظار تایید نیست.
+</div>
+
+<div th:unless="${users.empty}">
+    <table>
+        <tr>
+            <th>نام</th>
+            <th>نام خانوادگی</th>
+            <th>ایمیل</th>
+            <th>نقش</th>
+            <th>تاریخ ثبت</th>
+            <th>عملیات</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.firstName}"></td>
+            <td th:text="${user.lastName}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.role}"></td>
+            <td th:text="${#temporals.format(user.createdAt, 'yyyy/MM/dd')}"></td>
+            <td>
+                <form th:action="@{/admin/users/{id}/approve(id=${user.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn-approve">تایید</button>
+                </form>
+                <form th:action="@{/admin/users/{id}/reject(id=${user.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn-reject" onclick="return confirm('رد شود؟')">رد</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

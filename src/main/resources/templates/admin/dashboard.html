@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد ادمین</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        .stats { display: flex; justify-content: space-around; margin: 30px 0; }
+        .stat-box { text-align: center; padding: 20px; border: 1px solid #ddd; width: 23%; }
+        .links { margin-top: 30px; }
+        .link-box { padding: 15px; border: 1px solid #ddd; margin: 10px 0; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/admin/dashboard">داشبورد</a>
+    <a href="/admin/users">کاربران</a>
+    <a href="/admin/courses">دوره‌ها</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form>
+</div>
+
+<h2>پنل مدیریت</h2>
+
+<div class="stats">
+    <div class="stat-box">
+        <h3 th:text="${approveUsers}"></h3>
+        <p>کاربران فعال</p>
+    </div>
+    <div class="stat-box">
+        <h3 th:text="${courses}"></h3>
+        <p>دوره‌های فعال</p>
+    </div>
+    <div class="stat-box">
+        <h3 th:text="${pendingUsers}"></h3>
+        <p>در انتظار تایید</p>
+    </div>
+    <div class="stat-box">
+        <h3 th:text="${students}"></h3>
+        <p>دانشجو</p>
+    </div>
+</div>
+
+<div class="links">
+    <div class="link-box">
+        <a href="/admin/users">مدیریت کاربران</a>
+        <p>مدیریت دانشجویان و اساتید</p>
+    </div>
+    <div class="link-box">
+        <a href="/admin/courses">مدیریت دوره‌ها</a>
+        <p>ایجاد و مدیریت دوره‌های آموزشی</p>
+    </div>
+    <div class="link-box">
+        <a href="/admin/users/pending">تایید درخواست‌ها</a>
+        <p>تایید یا رد درخواست‌های ثبت نام</p>
+    </div>
+</div>
+</body>
+</html>

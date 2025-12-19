@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>جزئیات دوره</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        .info { background: #f9f9f9; padding: 15px; margin-bottom: 20px; }
+        button { padding: 5px 10px; margin: 2px; }
+        .btn-remove { background: red; color: white; }
+        .no-data { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/admin/dashboard">داشبورد</a>
+    <a href="/admin/courses">دوره‌ها</a>
+    <a href="/admin/users">کاربران</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form></div>
+
+<h2 th:text="${course.title}"></h2>
+<a href="/admin/courses">بازگشت</a>
+
+<div class="info">
+    <p><strong>کد دوره:</strong> <span th:text="${course.courseCode}"></span></p>
+    <p><strong>توضیحات:</strong> <span th:text="${course.description}"></span></p>
+    <p><strong>تاریخ شروع:</strong> <span th:text="${#temporals.format(course.startDate, 'yyyy/MM/dd')}"></span></p>
+    <p><strong>تاریخ پایان:</strong> <span th:text="${#temporals.format(course.endDate, 'yyyy/MM/dd')}"></span></p>
+    <p><strong>استاد:</strong>
+        <span th:if="${course.teacher != null}"
+              th:text="${course.teacher.firstName + ' ' + course.teacher.lastName}">
+            </span>
+        <span th:unless="${course.teacher != null}">تعیین نشده</span>
+    </p>
+</div>
+
+<h3>افزودن استاد</h3>
+<form th:action="@{/admin/courses/{id}/add-teacher(id=${course.id})}" method="post">
+    <select name="teacherId">
+        <option value="">انتخاب استاد</option>
+        <option th:each="teacher : ${teachers}"
+                th:value="${teacher.id}"
+                th:text="${teacher.firstName + ' ' + teacher.lastName}">
+        </option>
+    </select>
+    <button type="submit">افزودن استاد</button>
+</form>
+
+<h3>افزودن دانشجو</h3>
+<form th:action="@{/admin/courses/{id}/add-student(id=${course.id})}" method="post">
+    <select name="studentId">
+        <option value="">انتخاب دانشجو</option>
+        <option th:each="student : ${students}"
+                th:value="${student.id}"
+                th:text="${student.firstName + ' ' + student.lastName}">
+        </option>
+    </select>
+    <button type="submit">افزودن دانشجو</button>
+</form>
+
+<h3>دانشجویان دوره</h3>
+<div th:if="${courseStudents.empty}" class="no-data">
+    هیچ دانشجویی در این دوره نیست.
+</div>
+
+<div th:unless="${courseStudents.empty}">
+    <table>
+        <tr>
+            <th>نام</th>
+            <th>نام خانوادگی</th>
+            <th>ایمیل</th>
+            <th>عملیات</th>
+        </tr>
+        <tr th:each="student : ${courseStudents}">
+            <td th:text="${student.firstName}"></td>
+            <td th:text="${student.lastName}"></td>
+            <td th:text="${student.email}"></td>
+            <td>
+                <form th:action="@{/admin/courses/{courseId}/remove-student/{studentId}(courseId=${course.id}, studentId=${student.id})}"
+                      method="post">
+                    <button type="submit" class="btn-remove" onclick="return confirm('حذف شود؟')">حذف از دوره</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

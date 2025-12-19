@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>داشبورد استاد</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های من</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form></div>
+<h2>پنل اساتید</h2>
+</body>
+</html>

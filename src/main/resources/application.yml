@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: OnlineExamManagement
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/online_exam_management
+    username: postgres
+    password: 9976
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      format_sql: true
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+server:
+  port: 8081

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>کاربران</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th { background: #f2f2f2; }
+        .search { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; }
+        input, select { padding: 5px; margin: 5px; }
+        button { padding: 5px 10px; margin: 2px; }
+        .btn-edit { background: blue; color: white; border: none; }
+        .btn-delete { background: red; color: white; border: none; }
+        .no-data { text-align: center; padding: 20px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/admin/dashboard">داشبورد</a>
+    <a href="/admin/users">کاربران</a>
+    <a href="/admin/courses">دوره‌ها</a>
+    <a href="/admin/users/pending">در انتظار</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form>
+</div>
+
+<h2>مدیریت کاربران</h2>
+
+<div class="search">
+    <form method="get" action="/admin/users">
+        <input type="text" name="firstName" placeholder="نام" th:value="${param.firstName}">
+        <input type="text" name="lastName" placeholder="نام خانوادگی" th:value="${param.lastName}">
+
+        <select name="role">
+            <option value="">همه نقش‌ها</option>
+            <option th:each="role : ${roles}"
+                    th:value="${role}"
+                    th:text="${role}"
+                    th:selected="${param.role == role}"></option>
+        </select>
+
+        <select name="status">
+            <option value="">همه وضعیت‌ها</option>
+            <option th:each="status : ${statuses}"
+                    th:value="${status}"
+                    th:text="${status}"
+                    th:selected="${param.status == status}"></option>
+        </select>
+
+        <button type="submit">جستجو</button>
+        <a href="/admin/users">پاک کردن</a>
+    </form>
+</div>
+
+<div th:if="${users.empty}" class="no-data">
+    کاربری یافت نشد.
+</div>
+
+<div th:unless="${users.empty}">
+    <table>
+        <tr>
+            <th>نام</th>
+            <th>نام خانوادگی</th>
+            <th>ایمیل</th>
+            <th>نقش</th>
+            <th>وضعیت</th>
+            <th>عملیات</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.firstName}"></td>
+            <td th:text="${user.lastName}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.role}"></td>
+            <td th:text="${user.status}"></td>
+            <td>
+                <a th:href="@{/admin/users/{id}/edit(id=${user.id})}">
+                    <button class="btn-edit">ویرایش</button>
+                </a>
+                <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn-delete" onclick="return confirm('حذف شود؟')">حذف</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

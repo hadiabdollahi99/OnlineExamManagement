@@ -1,22 +1,266 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>داشبورد استاد</title>
     <style>
-        body { font-family: Arial; margin: 20px; }
-        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
-        .menu form { color: white; margin: 0 10px; text-decoration: none;}
-        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+
+        .menu {
+            background: #333;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .menu a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .menu form {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .welcome {
+            background: #f0f0f0;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats-box {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+
+        .section-title {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .course-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: #fafafa;
+        }
+
+        .course-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .exam-count {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .exam-item {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+        }
+
+        .exam-title {
+            font-weight: bold;
+        }
+
+        .exam-course {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: white;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #007bff;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            background: #f9f9f9;
+            border: 1px dashed #ddd;
+        }
     </style>
 </head>
 <body>
 <div class="menu">
     <a href="/teacher/dashboard">داشبورد</a>
-    <a href="/teacher/courses">دوره‌های من</a>
+    <a href="/teacher/courses">دوره‌های فعلی</a>
+    <a href="/teacher/my-exams">همه آزمون‌های من</a>
     <form th:action="@{/logout}" method="post">
         <button type="submit">خروج</button>
-    </form></div>
-<h2>پنل اساتید</h2>
+    </form>
+</div>
+
+<div class="welcome">
+    <h2>👨‍🏫 پنل استاد</h2>
+    <p>خوش آمدید استاد <strong th:text="${teacherName}"></strong></p>
+</div>
+
+<div class="stats-box">
+    <div class="stat-item">
+        <div class="stat-number" th:text="${totalExams}">0</div>
+        <div>کل آزمون‌های شما</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number" th:text="${activeExams}">0</div>
+        <div>آزمون‌های فعال</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number" th:text="${coursesWithMyExams.size()}">0</div>
+        <div>تعداد دوره‌ها</div>
+    </div>
+</div>
+
+<div class="section">
+    <h3 class="section-title">📚 دوره‌های فعلی شما</h3>
+
+    <div th:if="${currentCourses.empty}" class="no-data">
+        <p>در حال حاضر در هیچ دوره‌ای تدریس نمی‌کنید.</p>
+    </div>
+
+    <div th:unless="${currentCourses.empty}" class="course-list">
+        <div th:each="course : ${currentCourses}" class="course-card">
+            <div class="course-title" th:text="${course.title}"></div>
+            <div style="font-size: 14px; color: #666;">
+                کد: <span th:text="${course.courseCode}"></span>
+            </div>
+            <div style="margin-top: 10px;">
+                <a th:href="@{/teacher/courses/{id}/exams(id=${course.id})}"
+                   class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;">
+                    آزمون‌های این دوره
+                </a>
+                <a th:href="@{/teacher/courses/{id}/exams/new(id=${course.id})}"
+                   class="btn btn-success" style="font-size: 12px; padding: 5px 10px;">
+                    آزمون جدید
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h3 class="section-title">📝 همه آزمون‌های شما</h3>
+
+    <div style="margin-bottom: 15px;">
+        <a href="/teacher/my-exams" class="btn btn-info">مشاهده همه آزمون‌های من</a>
+    </div>
+
+    <div th:if="${allMyExams.empty}" class="no-data">
+        <p>هنوز هیچ آزمونی ایجاد نکرده‌اید.</p>
+    </div>
+
+    <div th:unless="${allMyExams.empty}">
+        <div th:each="entry : ${examsByCourse}">
+            <h4 style="color: #555; margin: 15px 0 10px 0;">
+                <span th:text="${entry.key.title}"></span>
+                <small>(<span th:text="${entry.value.size()}"></span> آزمون)</small>
+            </h4>
+
+            <div th:each="exam : ${entry.value}" class="exam-item">
+                <div class="exam-title" th:text="${exam.title}"></div>
+                <div class="exam-course" th:text="${exam.course.title}"></div>
+                <div style="font-size: 12px; color: #888;">
+                    زمان: <span th:text="${exam.durationMinutes}"></span> دقیقه |
+                    وضعیت:
+                    <span th:if="${exam.isActive}" style="color: green;">فعال</span>
+                    <span th:unless="${exam.isActive}" style="color: red;">غیرفعال</span>
+                </div>
+                <div style="margin-top: 8px;">
+                    <a th:href="@{/teacher/my-exams/{id}(id=${exam.id})}"
+                       style="background: #007bff; color: white; padding: 5px 10px; text-decoration: none; font-size: 12px;">
+                        مشاهده
+                    </a>
+                    <a th:href="@{/teacher/my-exams/{id}/edit(id=${exam.id})}"
+                       style="background: #ffc107; color: black; padding: 5px 10px; text-decoration: none; font-size: 12px; margin-right: 5px;">
+                        ویرایش
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h3 class="section-title"> دوره‌هایی که در آنها آزمون ایجاد کرده‌اید</h3>
+
+    <div th:if="${coursesWithMyExams.empty}" class="no-data">
+        <p>هنوز در هیچ دوره‌ای آزمون ایجاد نکرده‌اید.</p>
+    </div>
+
+    <div th:unless="${coursesWithMyExams.empty}" class="course-list">
+        <div th:each="course : ${coursesWithMyExams}" class="course-card">
+            <div class="course-title" th:text="${course.title}"></div>
+            <div style="font-size: 14px; color: #666;">
+                آزمون‌های شما:
+                <span class="exam-count">
+                        <span th:text="${examCounts[course.id]}"></span> آزمون
+                    </span>
+            </div>
+            <div style="margin-top: 10px;">
+                <a th:href="@{/teacher/courses/{id}/exams(id=${course.id})}"
+                   class="btn btn-primary" style="font-size: 12px; padding: 5px 10px;">
+                    مشاهده آزمون‌ها
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

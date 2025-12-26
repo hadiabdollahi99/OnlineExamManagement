@@ -1,5 +1,6 @@
 package ir.maktabsharif.onlineexammanagement.controller;
 
+import ir.maktabsharif.onlineexammanagement.dto.UserDto;
 import ir.maktabsharif.onlineexammanagement.model.User;
 import ir.maktabsharif.onlineexammanagement.model.UserRole;
 import ir.maktabsharif.onlineexammanagement.service.UserService;
@@ -41,13 +42,13 @@ public class AuthController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("user", new UserDto());
         return "register";
     }
 
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user,
+    public String registerUser(@ModelAttribute("user") UserDto dto,
                                BindingResult result,
                                @RequestParam("role") String role,
                                Model model) {
@@ -56,19 +57,19 @@ public class AuthController {
             return "register";
         }
 
-        if (userService.getUserByUsername(user.getUsername()).isPresent()) {
+        if (userService.getUserByUsername(dto.getUsername()).isPresent()) {
             model.addAttribute("errorMessage", "این نام کاربری قبلاً ثبت شده است");
             return "register";
         }
 
-        if (userService.getUserByEmail(user.getEmail()).isPresent()) {
+        if (userService.getUserByEmail(dto.getEmail()).isPresent()) {
             model.addAttribute("errorMessage", "این ایمیل قبلاً ثبت شده است");
             return "register";
         }
 
         try {
             UserRole userRole = UserRole.valueOf(role.toUpperCase());
-            User registeredUser = userService.registerUser(user, userRole);
+            User registeredUser = userService.registerUser(dto, userRole);
 
             model.addAttribute("username", registeredUser.getUsername());
             model.addAttribute("role", registeredUser.getRole().name());

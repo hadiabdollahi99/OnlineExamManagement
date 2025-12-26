@@ -1,5 +1,6 @@
 package ir.maktabsharif.onlineexammanagement.service;
 
+import ir.maktabsharif.onlineexammanagement.exception.UserStatusException;
 import ir.maktabsharif.onlineexammanagement.model.User;
 import ir.maktabsharif.onlineexammanagement.model.UserStatus;
 import ir.maktabsharif.onlineexammanagement.repository.UserRepository;
@@ -26,9 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("کاربری با نام کاربری " + username + " یافت نشد"));
 
         if (user.getStatus().equals(UserStatus.PENDING)){
-            throw new RuntimeException("User in pending!");
+            throw new UserStatusException("User in pending!");
         } else if (user.getStatus().equals(UserStatus.REJECT)){
-            throw new RuntimeException("User is rejected! Please contact to education building.");
+            throw new UserStatusException("User is rejected! Please contact to education building.");
         }
 
         Set<GrantedAuthority> authorities = new HashSet<>();

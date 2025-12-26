@@ -1,5 +1,6 @@
 package ir.maktabsharif.onlineexammanagement.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,4 +26,7 @@ public class Teacher extends User implements Serializable {
 
     @OneToMany(mappedBy = "teacher")
     private Set<Course> taughtCourses = new HashSet<>();
+
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.REMOVE)
+    private List<Exam> teacherExams = new ArrayList<>();
 }

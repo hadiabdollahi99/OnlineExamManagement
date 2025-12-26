@@ -1,5 +1,6 @@
 package ir.maktabsharif.onlineexammanagement.controller;
 
+import ir.maktabsharif.onlineexammanagement.exception.UserNotFoundException;
 import ir.maktabsharif.onlineexammanagement.model.*;
 import ir.maktabsharif.onlineexammanagement.service.CourseService;
 import ir.maktabsharif.onlineexammanagement.service.UserService;
@@ -78,7 +79,7 @@ public class AdminController {
     @GetMapping("/users/{id}/edit")
     public String showEditUserForm(@PathVariable Long id, Model model) {
         User user = userService.getUserById(id)
-                .orElseThrow(() -> new RuntimeException("کاربر یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("کاربر یافت نشد"));
         model.addAttribute("user", user);
         model.addAttribute("roles", UserRole.values());
         return "admin/edit-user";
@@ -100,7 +101,7 @@ public class AdminController {
 
     @PostMapping("/users/{id}/delete")
     public String deleteUser(@PathVariable Long id) {
-        User user = userService.getUserById(id).orElseThrow(() -> new RuntimeException("User cannot found!"));
+        User user = userService.getUserById(id).orElseThrow(() -> new UserNotFoundException("کاربر یافت نشد"));
         if (user.getRole().name().equals("TEACHER")){
             List<Course> teacherCourses = courseService.findByTeacher((Teacher) user);
             teacherCourses.forEach(course -> course.setTeacher(null));

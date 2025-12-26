@@ -1,5 +1,8 @@
 package ir.maktabsharif.onlineexammanagement.service;
 
+import ir.maktabsharif.onlineexammanagement.dto.UserDto;
+import ir.maktabsharif.onlineexammanagement.exception.UserExistException;
+import ir.maktabsharif.onlineexammanagement.exception.UserNotFoundException;
 import ir.maktabsharif.onlineexammanagement.model.*;
 import ir.maktabsharif.onlineexammanagement.repository.StudentRepository;
 import ir.maktabsharif.onlineexammanagement.repository.TeacherRepository;
@@ -22,9 +25,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User registerUser(User user, UserRole userRole) {
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("نام کاربری قبلاً ثبت شده است");
+    public User registerUser(UserDto dto, UserRole userRole) {
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new UserExistException("نام کاربری قبلاً ثبت شده است");
         }
 
         int randomNum = ThreadLocalRandom.current().nextInt(1000, 100000);
@@ -33,11 +36,11 @@ public class UserService {
 
         if (userRole.name().equals("STUDENT")){
             Student student = Student.builder()
-                    .username(user.getUsername())
-                    .password(passwordEncoder.encode(user.getPassword()))
-                    .email(user.getEmail())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
+                    .username(dto.getUsername())
+                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .email(dto.getEmail())
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
                     .role(UserRole.STUDENT)
                     .status(UserStatus.PENDING)
                     .studentNumber(randomString)
@@ -47,11 +50,11 @@ public class UserService {
 
         } else {
             Teacher teacher = Teacher.builder()
-                    .username(user.getUsername())
-                    .password(passwordEncoder.encode(user.getPassword()))
-                    .email(user.getEmail())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
+                    .username(dto.getUsername())
+                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .email(dto.getEmail())
+                    .firstName(dto.getFirstName())
+                    .lastName(dto.getLastName())
                     .role(UserRole.TEACHER)
                     .status(UserStatus.PENDING)
                     .teacherNumber(randomString)
@@ -65,7 +68,7 @@ public class UserService {
     @Transactional
     public User approveUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("کاربر یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("کاربر یافت نشد"));
         user.setStatus(UserStatus.APPROVE);
         return userRepository.save(user);
     }
@@ -73,7 +76,7 @@ public class UserService {
     @Transactional
     public User rejectUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("کاربر یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("کاربر یافت نشد"));
         user.setStatus(UserStatus.REJECT);
         return userRepository.save(user);
     }
@@ -81,7 +84,7 @@ public class UserService {
     @Transactional
     public User updateUser(Long userId, User userDetails) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("کاربر یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("کاربر یافت نشد"));
 
         user.setFirstName(userDetails.getFirstName());
         user.setLastName(userDetails.getLastName());

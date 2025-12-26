@@ -6,7 +6,10 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -40,6 +43,9 @@ public class Course extends BaseEntity<Long> implements Serializable {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private Set<StudentCourses> students = new HashSet<>();
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
+    private List<Exam> courseExams = new ArrayList<>();
 
 
     public void generateCourseCode() {

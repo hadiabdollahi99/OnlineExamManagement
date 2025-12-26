@@ -17,7 +17,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @MappedSuperclass
 @SuperBuilder
-public class BaseEntity<ID> implements Serializable {
+public abstract class BaseEntity<ID> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "BaseGenerator")
     @SequenceGenerator(name = "BaseGenerator", sequenceName = "item-seq", allocationSize = 1)

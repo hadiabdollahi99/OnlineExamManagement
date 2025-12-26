@@ -1,5 +1,9 @@
 package ir.maktabsharif.onlineexammanagement.service;
 
+import ir.maktabsharif.onlineexammanagement.exception.CourseNotFoundException;
+import ir.maktabsharif.onlineexammanagement.exception.StudentCourseExistException;
+import ir.maktabsharif.onlineexammanagement.exception.UserNotFoundException;
+import ir.maktabsharif.onlineexammanagement.exception.UserRoleException;
 import ir.maktabsharif.onlineexammanagement.model.*;
 import ir.maktabsharif.onlineexammanagement.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +31,7 @@ public class CourseService {
     @Transactional
     public Course updateCourse(Long courseId, Course courseDetails) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("دوره یافت نشد"));
+                .orElseThrow(() -> new CourseNotFoundException("دوره یافت نشد"));
 
         course.setTitle(courseDetails.getTitle());
         course.setDescription(courseDetails.getDescription());
@@ -40,13 +44,13 @@ public class CourseService {
     @Transactional
     public void addTeacherToCourse(Long courseId, Long teacherId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("دوره یافت نشد"));
+                .orElseThrow(() -> new CourseNotFoundException("دوره یافت نشد"));
 
         Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new RuntimeException("استاد یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("استاد یافت نشد"));
 
         if (teacher.getRole() != UserRole.TEACHER) {
-            throw new RuntimeException("کاربر انتخاب شده استاد نیست");
+            throw new UserRoleException("کاربر انتخاب شده استاد نیست");
         }
 
         course.setTeacher(teacher);
@@ -56,17 +60,17 @@ public class CourseService {
     @Transactional
     public void addStudentToCourse(Long courseId, Long studentId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("دوره یافت نشد"));
+                .orElseThrow(() -> new CourseNotFoundException("دوره یافت نشد"));
 
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("دانشجو یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("دانشجو یافت نشد"));
 
         if (student.getRole() != UserRole.STUDENT) {
-            throw new RuntimeException("کاربر انتخاب شده دانشجو نیست");
+            throw new UserRoleException("کاربر انتخاب شده دانشجو نیست");
         }
 
         if (studentCoursesService.existsByStudentAndCourse(student, course)){
-            throw new RuntimeException("دانشجو قبلا در دوره ثبت نام شده است");
+            throw new StudentCourseExistException("دانشجو قبلا در دوره ثبت نام شده است");
         }
 
         studentCoursesService.save(new StudentCourses(student,course));
@@ -75,10 +79,10 @@ public class CourseService {
     @Transactional
     public void removeStudentFromCourse(Long courseId, Long studentId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("دوره یافت نشد"));
+                .orElseThrow(() -> new CourseNotFoundException("دوره یافت نشد"));
 
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("دانشجو یافت نشد"));
+                .orElseThrow(() -> new UserNotFoundException("دانشجو یافت نشد"));
 
         studentCoursesService.deleteByCourseAndStudent(course,student);
     }
@@ -89,7 +93,7 @@ public class CourseService {
 
     public Course getCourseById(Long id) {
         return courseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("دوره یافت نشد"));
+                .orElseThrow(() -> new CourseNotFoundException("دوره یافت نشد"));
     }
 
     public List<Course> searchCourses(String title, String courseCode){

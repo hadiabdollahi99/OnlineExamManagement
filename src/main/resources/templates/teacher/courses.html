@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>دوره‌های من</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+        th { background: #f8f9fa; }
+        .btn {
+            padding: 5px 10px;
+            text-decoration: none;
+            color: white;
+            margin: 0 3px;
+        }
+        .btn-exams { background: #28a745; }
+        .no-data { text-align: center; padding: 50px; color: #666; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های من</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form>
+</div>
+
+<h2>📚 دوره‌های تدریس شما</h2>
+
+<div th:if="${courses.empty}" class="no-data">
+    <p>شما در هیچ دوره‌ای تدریس نمی‌کنید.</p>
+    <p>لطفاً با مدیر سیستم تماس بگیرید.</p>
+</div>
+
+<div th:unless="${courses.empty}">
+    <table>
+        <thead>
+        <tr>
+            <th>عنوان دوره</th>
+            <th>کد دوره</th>
+            <th>تاریخ شروع</th>
+            <th>تاریخ پایان</th>
+            <th>تعداد دانشجویان</th>
+            <th>تعداد آزمون‌ها</th>
+            <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="course : ${courses}">
+            <td th:text="${course.title}"></td>
+            <td th:text="${course.courseCode}"></td>
+            <td th:text="${#temporals.format(course.startDate, 'yyyy/MM/dd')}"></td>
+            <td th:text="${#temporals.format(course.endDate, 'yyyy/MM/dd')}"></td>
+            <td th:text="${course.students.size()}"></td>
+            <td>
+                <span th:text="${course.courseExams != null ? course.courseExams.size() : 0}"></span>
+            </td>
+            <td>
+                <a th:href="@{/teacher/courses/{id}/exams(id=${course.id})}"
+                   class="btn btn-exams">آزمون‌ها</a>
+                <a th:href="@{/teacher/courses/{id}/exams/new(id=${course.id})}"
+                   style="background: #17a2b8;" class="btn">آزمون جدید</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

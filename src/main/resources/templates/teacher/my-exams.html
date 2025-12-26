@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>همه آزمون‌های من</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .menu form { color: white; margin: 0 10px; text-decoration: none;}
+        .header {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-right: 4px solid #007bff;
+        }
+
+        .course-section {
+            margin: 30px 0;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: white;
+        }
+        .course-title {
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .exam-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .exam-table th, .exam-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: right;
+        }
+        .exam-table th {
+            background: #f8f9fa;
+        }
+
+        .btn { padding: 8px 15px; text-decoration: none; color: white; margin: 5px; display: inline-block;}
+        .btn-view { background: #007bff; }
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-delete { background: #dc3545; }
+
+        .no-exams {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: #f9f9f9;
+            border: 1px dashed #ddd;
+        }
+
+        form {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های فعلی</a>
+    <a href="/teacher/my-exams">همه آزمون‌های من</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form></div>
+
+<div class="header">
+    <h2>📚 همه آزمون‌های من</h2>
+</div>
+
+<div th:if="${myExams.empty}" class="no-exams">
+    <p>شما هنوز هیچ آزمونی ایجاد نکرده‌اید.</p>
+    <p>برای ایجاد آزمون جدید، به صفحه "دوره‌های فعلی" مراجعه کنید.</p>
+    <a href="/teacher/courses" style="background: #28a745; color: white; padding: 10px; text-decoration: none;">
+        مشاهده دوره‌های فعلی
+    </a>
+</div>
+
+<div th:each="entry : ${examsGroupedByCourse}">
+    <div class="course-section">
+        <h3 class="course-title">
+            <span th:text="${entry.key.title}"></span>
+            <small style="color: #666;">(کد: <span th:text="${entry.key.courseCode}"></span>)</small>
+            <span style="color: #28a745; font-size: 14px;">
+                    - <span th:text="${entry.value.size()}"></span> آزمون
+                </span>
+        </h3>
+
+        <table class="exam-table">
+            <thead>
+            <tr>
+                <th>عنوان آزمون</th>
+                <th>توضیحات</th>
+                <th>زمان (دقیقه)</th>
+                <th>تعداد سوالات</th>
+                <th>تاریخ ایجاد</th>
+                <th>وضعیت</th>
+                <th>عملیات</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="exam : ${entry.value}">
+                <td th:text="${exam.title}"></td>
+                <td>
+                            <span th:if="${exam.description != null}"
+                                  th:text="${#strings.length(exam.description) > 50 ? #strings.substring(exam.description, 0, 50) + '...' : exam.description}"></span>
+                    <span th:unless="${exam.description != null}">-</span>
+                </td>
+                <td th:text="${exam.durationMinutes}"></td>
+                <td th:text="0"></td>
+                <td th:text="${#temporals.format(exam.createdAt, 'yyyy/MM/dd')}"></td>
+                <td>
+                    <span th:if="${exam.isActive}" style="color: green;">فعال</span>
+                    <span th:unless="${exam.isActive}" style="color: red;">غیرفعال</span>
+                </td>
+                <td>
+                    <a th:href="@{/teacher/my-exams/{id}(id=${exam.id})}"
+                       class="btn btn-view">👁️ مشاهده</a>
+                    <a th:href="@{/teacher/my-exams/{id}/edit(id=${exam.id})}"
+                       class="btn btn-edit">✏️ ویرایش</a>
+                    <form th:action="@{/teacher/exams/{id}/delete(id=${exam.id})}" method="post">
+                        <button type="submit" class="btn btn-delete"
+                                onclick="return confirm('آیا از حذف این آزمون اطمینان دارید؟')">
+                            🗑️ حذف
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="margin-top: 30px; padding: 15px; background: #f8f9fa; text-align: center;">
+    <p>
+        <strong>آمار:</strong>
+        شما در مجموع <strong th:text="${myExams.size()}"></strong> آزمون ایجاد کرده‌اید
+        که در <strong th:text="${examsGroupedByCourse.size()}"></strong> دوره مختلف هستند.
+    </p>
+</div>
+</body>
+</html>

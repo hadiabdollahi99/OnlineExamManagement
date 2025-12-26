@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>جزئیات آزمون</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .exam-header {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: white;
+            margin: 5px;
+            display: inline-block;
+        }
+        .btn-edit { background: #ffc107; color: black; }
+        .btn-delete { background: #dc3545; }
+        .owner-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #28a745;
+            color: white;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .not-owner-message {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های من</a>
+    <a th:href="@{/teacher/courses/{id}/exams(id=${exam.course.id})}">← بازگشت به آزمون‌ها</a>
+</div>
+
+<div class="exam-header">
+    <h2 th:text="${exam.title}"></h2>
+
+    <div>
+        <span th:if="${isOwner}" class="owner-badge">✓ شما صاحب این آزمون هستید</span>
+        <span>استاد: <strong th:text="${exam.teacher.firstName + ' ' + exam.teacher.lastName}"></strong></span>
+    </div>
+
+    <div style="color: #666; margin-top: 10px;">
+        <p><strong>دوره:</strong> <span th:text="${exam.course.title}"></span></p>
+        <p><strong>زمان آزمون:</strong> <span th:text="${exam.durationMinutes}"></span> دقیقه</p>
+        <p><strong>توضیحات:</strong> <span th:text="${exam.description}"></span></p>
+        <p><strong>تاریخ ایجاد:</strong>
+            <span th:text="${#temporals.format(exam.createdAt, 'yyyy/MM/dd HH:mm')}"></span>
+        </p>
+    </div>
+
+    <div th:unless="${isOwner}" class="not-owner-message">
+        ⚠ شما صاحب این آزمون نیستید. فقط می‌توانید آن را مشاهده کنید.
+    </div>
+
+    <div style="margin-top: 15px;">
+        <a th:href="@{/teacher/exams/{id}/edit(id=${exam.id})}"
+           th:if="${isOwner}"
+           class="btn btn-edit">✏️ ویرایش آزمون</a>
+
+        <form th:action="@{/teacher/exams/{id}/delete(id=${exam.id})}"
+              th:if="${isOwner}"
+              method="post">
+            <button type="submit" class="btn btn-delete"
+                    onclick="return confirm('آیا از حذف این آزمون اطمینان دارید؟')">
+                🗑️ حذف آزمون
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

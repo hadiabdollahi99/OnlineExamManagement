@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ایجاد آزمون جدید</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
+        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #555; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+        textarea { height: 100px; resize: vertical; }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn-save { background: #28a745; }
+        .btn-cancel { background: #6c757d; }
+        .error { color: red; font-size: 14px; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+<div class="menu">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های من</a>
+    <a th:href="@{/teacher/courses/{id}/exams(id=${course.id})}">← بازگشت</a>
+</div>
+
+<div class="container">
+    <h2>ایجاد آزمون جدید</h2>
+
+    <div style="background: #f8f9fa; padding: 15px; margin-bottom: 20px;">
+        <p><strong>دوره:</strong> <span th:text="${course.title}"></span></p>
+        <p><strong>کد دوره:</strong> <span th:text="${course.courseCode}"></span></p>
+    </div>
+
+    <div th:if="${successMessage}" class="success">
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="error">
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <form th:action="@{/teacher/courses/{id}/exams/new(id=${course.id})}"
+          th:object="${exam}" method="post">
+
+        <div class="form-group">
+            <label for="title">عنوان آزمون:</label>
+            <input type="text" id="title" th:field="*{title}" required>
+            <div class="error" th:if="${#fields.hasErrors('title')}"
+                 th:errors="*{title}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">توضیحات آزمون:</label>
+            <textarea id="description" th:field="*{description}"></textarea>
+            <div class="error" th:if="${#fields.hasErrors('description')}"
+                 th:errors="*{description}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="durationMinutes">زمان آزمون (دقیقه):</label>
+            <input type="number" id="durationMinutes" th:field="*{durationMinutes}"
+                   min="1" max="300" required>
+            <div class="error" th:if="${#fields.hasErrors('durationMinutes')}"
+                 th:errors="*{durationMinutes}"></div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-save">💾 ذخیره آزمون</button>
+            <a th:href="@{/teacher/courses/{id}/exams(id=${course.id})}">
+                <button type="button" class="btn btn-cancel">❌ لغو</button>
+            </a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

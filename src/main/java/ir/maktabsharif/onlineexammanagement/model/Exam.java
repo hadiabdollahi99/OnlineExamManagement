@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -44,4 +46,16 @@ public class Exam extends BaseEntity<Long> implements Serializable {
     @JoinColumn(name = "teacher_id", nullable = false)
     private User teacher;
 
+
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.REMOVE)
+    private List<ExamQuestion> examQuestions = new ArrayList<>();
+
+    public Double getTotalScore() {
+        if (examQuestions == null || examQuestions.isEmpty()) {
+            return 0.0;
+        }
+        return examQuestions.stream()
+                .mapToDouble(ExamQuestion::getDefaultScore)
+                .sum();
+    }
 }

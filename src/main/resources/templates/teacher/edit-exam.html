@@ -82,6 +82,14 @@
                 <option value="false">غیرفعال</option>
             </select>
         </div>
+        <div style="margin: 20px 0; padding: 15px; background: #f8f9fa;">
+            <h4>مدیریت سوالات آزمون</h4>
+            <p>برای افزودن یا حذف سوالات این آزمون، از لینک زیر استفاده کنید:</p>
+            <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}"
+               style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; display: inline-block; margin: 10px 0;">
+                📝 مدیریت سوالات آزمون
+            </a>
+        </div>
 
         <div class="form-group">
             <button type="submit" class="btn btn-save">💾 ذخیره تغییرات</button>

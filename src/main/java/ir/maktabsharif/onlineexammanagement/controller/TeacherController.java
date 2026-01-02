@@ -205,9 +205,9 @@ public class TeacherController {
         }
 
         try {
-            examService.createExam(examDto, courseId, user.getId());
+            Exam createdExam = examService.createExam(examDto, courseId, user.getId());
             redirectAttributes.addFlashAttribute("successMessage", "آزمون با موفقیت ایجاد شد");
-            return "redirect:/teacher/courses/" + courseId + "/exams";
+            return "redirect:/teacher/questions/exam/" + createdExam.getId();
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/teacher/courses/" + courseId + "/exams/new";
@@ -370,5 +370,10 @@ public class TeacherController {
 
             return "redirect:/teacher/exams/" + examId;
         }
+    }
+
+    @GetMapping("/exams/{examId}/questions")
+    public String redirectToManageQuestions(@PathVariable Long examId) {
+        return "redirect:/teacher/questions/exam/" + examId;
     }
 }

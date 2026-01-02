@@ -37,7 +37,7 @@ public class Course extends BaseEntity<Long> implements Serializable {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 

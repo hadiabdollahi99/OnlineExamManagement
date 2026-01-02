@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>مدیریت سوالات آزمون</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .header a:hover {
+            text-decoration: underline;
+        }
+        .exam-info {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        .actions {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+        }
+        .btn-add-bank {
+            background: #28a745;
+        }
+        .btn-add-new {
+            background: #17a2b8;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: right;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        .score-input {
+            width: 80px;
+            padding: 5px;
+        }
+        .total-score {
+            background: #e9f7ef;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid #28a745;
+        }
+        .no-questions {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .success {
+            color: green;
+            padding: 10px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            margin: 10px 0;
+        }
+        .error {
+            color: #721c24;
+            padding: 10px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            margin: 10px 0;
+        }
+        .question-type {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #e9ecef;
+        }
+        form {
+            display: inline;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .save-btn {
+            background: #ffc107;
+            color: black;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های من</a>
+    <a href="/teacher/my-exams">آزمون‌های من</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form>
+</div>
+
+<div class="exam-info">
+    <h2>مدیریت سوالات آزمون</h2>
+    <p><strong>آزمون:</strong> <span th:text="${exam?.title}"></span></p>
+    <p><strong>دوره:</strong> <span th:text="${exam?.course?.title}"></span></p>
+    <p><strong>کد دوره:</strong> <span th:text="${exam?.course?.courseCode}"></span></p>
+</div>
+
+<div class="actions">
+    <h3>افزودن سوال جدید:</h3>
+    <a th:href="@{/teacher/questions/exam/{id}/add-from-bank(id=${exam?.id})}"
+       class="btn btn-add-bank">➕ از بانک سوالات</a>
+    <a th:href="@{/teacher/questions/exam/{id}/create-new/select-type(id=${exam?.id})}"
+       class="btn btn-add-new">🆕 ایجاد سوال جدید</a>
+    <a th:href="@{/teacher/exams/{id}(id=${exam?.id})}"
+       class="btn btn-back">← بازگشت به آزمون</a>
+</div>
+
+<div th:if="${examQuestions == null or examQuestions.isEmpty()}">
+    <div class="no-questions">
+        <p>هنوز هیچ سوالی به این آزمون اضافه نشده است.</p>
+        <p>می‌توانید سوالات را از بانک اضافه کنید یا سوال جدید ایجاد کنید.</p>
+    </div>
+</div>
+
+<div th:if="${examQuestions != null and not examQuestions.isEmpty()}">
+    <h3>سوالات آزمون (<span th:text="${examQuestions.size()}"></span> سوال)</h3>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ردیف</th>
+            <th>عنوان سوال</th>
+            <th>نوع سوال</th>
+            <th>متن سوال</th>
+            <th>نمره پیشفرض</th>
+            <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="item, iter : ${examQuestions}">
+            <tr th:if="${item != null}">
+                <td th:text="${iter.count}"></td>
+                <td th:text="${item?.question?.title ?: 'بدون عنوان'}"></td>
+                <td>
+                    <span class="question-type"
+                          th:text="${item?.question?.questionType?.name() == 'DESCRIPTIVE' ? 'تشریحی' :
+                                   item?.question?.questionType?.name() == 'MULTIPLE_CHOICE' ? 'چندگزینه‌ای' :
+                                   'نامشخص'}">
+                    </span>
+                </td>
+                <td>
+                    <span th:if="${item?.question?.questionText != null and #strings.length(item.question.questionText) > 50}"
+                          th:text="${#strings.substring(item.question.questionText, 0, 50)} + '...'"></span>
+                    <span th:if="${item?.question?.questionText != null and #strings.length(item.question.questionText) <= 50}"
+                          th:text="${item.question.questionText}"></span>
+                    <span th:if="${item?.question?.questionText == null}">-</span>
+                </td>
+                <td>
+                    <form th:action="@{/teacher/questions/exam-question/{id}/update-score(id=${item?.id})}"
+                          method="post" th:if="${item?.id != null}">
+                        <input type="number" name="newScore"
+                               th:value="${item?.defaultScore ?: 0}"
+                               step="0.5" min="0" max="100" class="score-input">
+                        <button type="submit" class="save-btn">ذخیره</button>
+                    </form>
+                    <span th:if="${item?.id == null}">-</span>
+                </td>
+                <td>
+                    <form th:action="@{/teacher/questions/exam-question/{id}/delete(id=${item?.id})}"
+                          method="post" th:if="${item?.id != null}">
+                        <button type="submit" class="delete-btn"
+                                onclick="return confirm('آیا از حذف این سوال اطمینان دارید؟')">
+                            حذف
+                        </button>
+                    </form>
+                    <span th:if="${item?.id == null}">-</span>
+                </td>
+            </tr>
+        </th:block>
+        </tbody>
+    </table>
+
+    <div class="total-score">
+        <h3>نمره کل آزمون: <span th:text="${totalScore != null ? totalScore : 0}"></span> نمره</h3>
+    </div>
+</div>
+</body>
+</html>

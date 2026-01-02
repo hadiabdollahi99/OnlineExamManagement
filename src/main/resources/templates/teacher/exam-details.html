@@ -70,6 +70,11 @@
         <a th:href="@{/teacher/exams/{id}/edit(id=${exam.id})}"
            th:if="${isOwner}"
            class="btn btn-edit">✏️ ویرایش آزمون</a>
+        <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}"
+           th:if="${isOwner}"
+           style="background: #28a745; color: white; padding: 8px 15px; text-decoration: none; margin-right: 5px;">
+            📝 مدیریت سوالات
+        </a>
 
         <form th:action="@{/teacher/exams/{id}/delete(id=${exam.id})}"
               th:if="${isOwner}"

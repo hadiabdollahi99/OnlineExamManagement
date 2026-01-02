@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش سوال چندگزینه‌ای</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .options-container {
+            margin-top: 20px;
+        }
+
+        .option-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .option-number {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .remove-option {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .add-option-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn-save {
+            background: #28a745;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+        }
+
+        .course-info {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-right: 4px solid #007bff;
+        }
+
+        .original-info {
+            background: #fff3cd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .checkbox-group {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+
+        .warning {
+            color: #856404;
+            font-size: 14px;
+        }
+    </style>
+    <script>
+
+        let optionCounter = 0;
+
+        function initOptions() {
+            const options = document.querySelectorAll('.option-item');
+            options.forEach((option, index) => {
+                const hiddenInput = option.querySelector('input[type="hidden"]');
+                const textarea = option.querySelector('textarea');
+                const checkbox = option.querySelector('input[type="checkbox"]');
+
+                hiddenInput.name = `options[${index}].orderIndex`;
+                textarea.name = `options[${index}].optionText`;
+                checkbox.name = `options[${index}].isCorrect`;
+            });
+            optionCounter = options.length;
+        }
+
+        window.onload = function() {
+            initOptions();
+        };
+
+
+
+
+        function addOption() {
+            optionCounter++;
+
+            const optionsContainer = document.getElementById('options-container');
+
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option-item';
+            optionDiv.innerHTML = `
+        <div class="option-header">
+            <span class="option-number">گزینه ${optionCounter}</span>
+            <button type="button" class="remove-option" onclick="removeOption(this)">حذف</button>
+        </div>
+        <div>
+            <input type="hidden" name="options[${optionCounter - 1}].orderIndex" value="${optionCounter}">
+            <textarea name="options[${optionCounter - 1}].optionText" placeholder="متن گزینه" required></textarea>
+        </div>
+        <div style="margin-top: 10px;">
+            <input type="checkbox" class="correct-checkbox"
+                   name="options[${optionCounter - 1}].isCorrect" value="true">
+            <label>گزینه صحیح</label>
+        </div>
+    `;
+
+            optionsContainer.appendChild(optionDiv);
+        }
+
+        function removeOption(button) {
+            if (document.querySelectorAll('.option-item').length > 2) {
+                button.closest('.option-item').remove();
+                renumberOptions();
+            } else {
+                alert('حداقل دو گزینه لازم است');
+            }
+        }
+
+        function renumberOptions() {
+            const options = document.querySelectorAll('.option-item');
+            options.forEach((option, index) => {
+                const numberSpan = option.querySelector('.option-number');
+                const hiddenInput = option.querySelector('input[type="hidden"]');
+
+                numberSpan.textContent = `گزینه ${index + 1}`;
+                hiddenInput.value = index + 1;
+                hiddenInput.name = `options[${index}].orderIndex`;
+
+                const textarea = option.querySelector('textarea');
+                textarea.name = `options[${index}].optionText`;
+
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                checkbox.name = `options[${index}].isCorrect`;
+            });
+            optionCounter = options.length;
+        }
+
+        function validateForm() {
+            const correctOptions = document.querySelectorAll('.correct-checkbox:checked');
+            if (correctOptions.length === 0) {
+                alert('حداقل یک گزینه باید صحیح باشد');
+                return false;
+            }
+
+            const textareas = document.querySelectorAll('textarea[name^="options"]');
+            for (let textarea of textareas) {
+                if (!textarea.value.trim()) {
+                    alert('لطفاً متن همه گزینه‌ها را پر کنید');
+                    textarea.focus();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        window.onload = function () {
+            initOptions();
+        };
+    </script>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a th:href="@{/teacher/question-bank/course/{id}(id=${course.id})}">← بازگشت به بانک</a>
+</div>
+
+<div class="container">
+    <h2>ویرایش سوال چندگزینه‌ای</h2>
+
+    <div class="course-info">
+        <p><strong>دوره:</strong> <span th:text="${course.title}"></span></p>
+        <p><strong>کد دوره:</strong> <span th:text="${course.courseCode}"></span></p>
+    </div>
+
+    <div class="original-info">
+        <p><strong>⚠ توجه:</strong> شما در حال ویرایش سوال "<span th:text="${originalQuestion.title}"></span>" هستید.
+        </p>
+        <p class="warning">این ویرایش منجر به ایجاد یک سوال <strong>جدید</strong> در بانک می‌شود.</p>
+        <p>سوال اصلی با تاریخ ایجاد <span
+                th:text="${#temporals.format(originalQuestion.createdAt, 'yyyy/MM/dd')}"></span> باقی می‌ماند.</p>
+    </div>
+
+    <form th:action="@{/teacher/question-bank/question/{id}/save-copy(id=${originalQuestion.id})}"
+          method="post" onsubmit="return validateForm()">
+
+        <input type="hidden" name="courseId" th:value="${course.id}">
+
+        <div class="form-group">
+            <label for="title">عنوان سوال (برای شناسایی):</label>
+            <input type="text" id="title" name="title"
+                   th:value="${question.title}" required
+                   placeholder="مثلاً: مفهوم شی‌گرایی">
+        </div>
+
+        <div class="form-group">
+            <label for="questionText">متن سوال:</label>
+            <textarea id="questionText" name="questionText"
+                      th:text="${question.questionText}"
+                      placeholder="صورت سوال را اینجا بنویسید..." required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>گزینه‌ها:</label>
+            <div id="options-container" class="options-container">
+                <div th:each="option, stat : ${question.options}" class="option-item">
+                    <div class="option-header">
+                        <span class="option-number">گزینه <span th:text="${stat.count}"></span></span>
+                        <button type="button" class="remove-option" onclick="removeOption(this)">حذف</button>
+                    </div>
+                    <div>
+                        <input type="hidden" name="orderIndex" th:value="${stat.count}">
+                        <textarea name="optionText" th:text="${option.optionText}" placeholder="متن گزینه" required></textarea>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <input type="checkbox" class="correct-checkbox" name="isCorrect" value="true" th:checked="${option.isCorrect}">
+                        <label>گزینه صحیح</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="add-option-btn" onclick="addOption()">
+                ➕ افزودن گزینه جدید
+            </button>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="keepOriginal" name="keepOriginal" value="true" checked>
+            <label for="keepOriginal">سوال اصلی را در بانک نگه دار</label>
+            <p class="warning">اگر این گزینه را بردارید، سوال اصلی از بانک حذف می‌شود.</p>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-save">💾 ذخیره به عنوان سوال جدید</button>
+            <a th:href="@{/teacher/question-bank/course/{id}(id=${course.id})}">
+                <button type="button" class="btn btn-cancel">❌ لغو</button>
+            </a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

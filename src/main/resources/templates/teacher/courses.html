@@ -65,6 +65,8 @@
                    class="btn btn-exams">آزمون‌ها</a>
                 <a th:href="@{/teacher/courses/{id}/exams/new(id=${course.id})}"
                    style="background: #17a2b8;" class="btn">آزمون جدید</a>
+                <a th:href="@{/teacher/question-bank/course/{id}(id=${course.id})}"
+                   style="background: #28a745;" class="btn">📚 بانک سوالات</a>
             </td>
         </tr>
         </tbody>

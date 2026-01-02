@@ -15,6 +15,7 @@
         .btn-view { background: #007bff; }
         .btn-edit { background: #ffc107; color: black; }
         .btn-delete { background: #dc3545; }
+        .btn-question { background: #28a745; color: white;}
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
         th { background: #f8f9fa; }
@@ -117,6 +118,11 @@
                 <a th:href="@{/teacher/exams/{id}/edit(id=${exam.id})}"
                    th:if="${exam.teacher.id == currentTeacherId}"
                    class="btn btn-edit">✏️ ویرایش</a>
+                <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}"
+                   th:if="${exam.teacher.id == currentTeacherId}"
+                   class="btn btn-question">
+                    📝 سوالات
+                </a>
 
                 <form th:action="@{/teacher/exams/{id}/delete(id=${exam.id})}"
                       th:if="${exam.teacher.id == currentTeacherId}"

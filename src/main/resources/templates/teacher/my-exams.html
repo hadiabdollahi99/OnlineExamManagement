@@ -45,6 +45,8 @@
         .btn-view { background: #007bff; }
         .btn-edit { background: #ffc107; color: black; }
         .btn-delete { background: #dc3545; }
+        .btn-question { background: #28a745; color: white;}
+
 
         .no-exams {
             text-align: center;
@@ -122,6 +124,12 @@
                        class="btn btn-view">👁️ مشاهده</a>
                     <a th:href="@{/teacher/my-exams/{id}/edit(id=${exam.id})}"
                        class="btn btn-edit">✏️ ویرایش</a>
+                    <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}"
+                       class="btn btn-question">
+                        📝 سوالات
+                    </a>
+
+
                     <form th:action="@{/teacher/exams/{id}/delete(id=${exam.id})}" method="post">
                         <button type="submit" class="btn btn-delete"
                                 onclick="return confirm('آیا از حذف این آزمون اطمینان دارید؟')">

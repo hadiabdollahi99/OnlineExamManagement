@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>انتخاب نوع سوال</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .question-types {
+            margin: 30px 0;
+        }
+        .type-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .type-card:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+        }
+        .type-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .type-desc {
+            color: #666;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            margin: 5px;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}">← بازگشت</a>
+</div>
+
+<div class="container">
+    <h2>انتخاب نوع سوال</h2>
+    <p style="text-align: center; color: #666;">لطفاً نوع سوالی که می‌خواهید ایجاد کنید را انتخاب کنید:</p>
+
+    <div class="question-types">
+        <a th:href="@{/teacher/questions/exam/{id}/create-new/multiple-choice(id=${exam.id})}"
+           style="text-decoration: none;">
+            <div class="type-card">
+                <div class="type-title">📝 سوال چندگزینه‌ای</div>
+                <div class="type-desc">سوال با گزینه‌های متعدد که دانشجو باید پاسخ صحیح را انتخاب کند</div>
+            </div>
+        </a>
+
+        <a th:href="@{/teacher/questions/exam/{id}/create-new/descriptive(id=${exam.id})}"
+           style="text-decoration: none;">
+            <div class="type-card">
+                <div class="type-title">📄 سوال تشریحی</div>
+                <div class="type-desc">سوالی که نیاز به پاسخ متنی و تشریحی دارد</div>
+            </div>
+        </a>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}" class="btn btn-back">❌ لغو</a>
+    </div>
+</div>
+</body>
+</html>

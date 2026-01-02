@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>بانک سوالات دوره</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .course-info {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        .search-box {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+        .question-list {
+            margin-top: 20px;
+        }
+        .question-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .question-type {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #e9ecef;
+            margin-right: 10px;
+        }
+        .question-text {
+            color: #666;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .question-meta {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .question-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-view {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: black;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .no-questions {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .stats {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/courses">دوره‌های من</a>
+    <a th:href="@{/teacher/courses}">← بازگشت</a>
+</div>
+
+<div class="course-info">
+    <h2>بانک سوالات دوره</h2>
+    <p><strong>دوره:</strong> <span th:text="${course.title}"></span></p>
+    <p><strong>کد دوره:</strong> <span th:text="${course.courseCode}"></span></p>
+    <p><strong>تعداد سوالات:</strong> <span th:text="${questions.size()}"></span> سوال</p>
+</div>
+
+<div class="search-box">
+    <form method="get" th:action="@{/teacher/question-bank/course/{id}(id=${course.id})}">
+        <input type="text" name="title" placeholder="عنوان سوال" th:value="${searchTitle}">
+
+        <select name="questionType">
+            <option value="">همه انواع</option>
+            <option th:each="type : ${questionTypes}"
+                    th:value="${type.name()}"
+                    th:text="${type.name() == 'MULTIPLE_CHOICE' ? 'چندگزینه‌ای' : 'تشریحی'}"
+                    th:selected="${searchQuestionType == type}"></option>
+        </select>
+
+        <button type="submit">🔍 جستجو</button>
+        <a th:href="@{/teacher/question-bank/course/{id}(id=${course.id})}">
+            <button type="button">❌ پاک کردن</button>
+        </a>
+    </form>
+</div>
+
+<div class="stats">
+    <span th:if="${searchQuestionType?.name() == 'MULTIPLE_CHOICE'}">📊 نمایش سوالات چندگزینه‌ای</span>
+    <span th:if="${searchQuestionType?.name() == 'DESCRIPTIVE'}">📊 نمایش سوالات تشریحی</span>
+    <span th:if="${searchTitle != null and !searchTitle.empty}"> | جستجو: "<span th:text="${searchTitle}"></span>"</span>
+</div>
+
+<div class="question-list">
+    <div th:if="${questions.empty}" class="no-questions">
+        <p>هیچ سوالی در بانک این دوره پیدا نشد.</p>
+        <p>برای ایجاد سوال جدید، یک آزمون در این دوره ایجاد کرده و سوال اضافه کنید.</p>
+        <a th:href="@{/teacher/courses/{id}/exams(id=${course.id})}"
+           style="background: #17a2b8; color: white; padding: 10px; text-decoration: none;">
+            مشاهده آزمون‌های این دوره
+        </a>
+    </div>
+
+    <div th:each="question : ${questions}">
+        <div class="question-card">
+            <div>
+                <span class="question-type"
+                      th:text="${question.questionType.name() == 'MULTIPLE_CHOICE' ? 'چندگزینه‌ای' : 'تشریحی'}">
+                </span>
+                <span class="question-title" th:text="${question.title}"></span>
+            </div>
+
+            <div class="question-text">
+                <span th:if="${#strings.length(question.questionText) > 150}"
+                      th:text="${#strings.substring(question.questionText, 0, 150)} + '...'"></span>
+                <span th:unless="${#strings.length(question.questionText) > 150}"
+                      th:text="${question.questionText}"></span>
+            </div>
+
+
+            <div th:if="${question.questionType.name() == 'MULTIPLE_CHOICE'}" style="font-size: 12px; color: #888;">
+                <span th:text="${question.options.size()}"></span> گزینه
+            </div>
+            <div th:if="${question.questionType.name() == 'MULTIPLE_CHOICE'}" style="font-size: 12px; color: #888;">
+                <span th:text="${question.options.?[isCorrect == true].size()}"></span>:گزینه‌ صحیح
+            </div>
+
+            <div th:if="${question.questionType.name() == 'DESCRIPTIVE'
+             and #strings.length(question.sampleAnswer) > 0}"
+                 class="question-meta">
+                دارای پاسخ نمونه
+            </div>
+
+            <div class="question-actions">
+                <a th:href="@{/teacher/question-bank/question/{id}(id=${question.id}, courseId=${course.id})}"
+                   class="action-btn btn-view">
+                    👁️ مشاهده
+                </a>
+
+                <a th:href="@{/teacher/question-bank/question/{id}/edit(id=${question.id}, courseId=${course.id})}"
+                   class="action-btn btn-edit">
+                    ✏️ ویرایش
+                </a>
+
+                <form th:action="@{/teacher/question-bank/question/{id}/delete(id=${question.id})}"
+                      method="post">
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <button type="submit" class="delete-btn"
+                            onclick="return confirm('آیا از حذف این سوال از بانک اطمینان دارید؟')">
+                        🗑️ حذف
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

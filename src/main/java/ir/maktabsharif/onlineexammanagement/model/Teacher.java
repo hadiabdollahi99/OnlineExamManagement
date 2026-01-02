@@ -29,4 +29,7 @@ public class Teacher extends User implements Serializable {
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.REMOVE)
     private List<Exam> teacherExams = new ArrayList<>();
+
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.REMOVE)
+    private List<BaseQuestion> createdQuestions = new ArrayList<>();
 }

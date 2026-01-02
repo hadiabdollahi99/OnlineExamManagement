@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>جزئیات سوال</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .question-info {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            color: #333;
+            line-height: 1.6;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border: 1px solid #eee;
+        }
+        .question-meta {
+            color: #666;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .question-type {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #e9ecef;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .options-container {
+            margin: 20px 0;
+        }
+        .option-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9f9f9;
+        }
+        .sample-answer {
+            background: #fff3cd;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ffeaa7;
+        }
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            margin: 5px;
+        }
+        .btn-edit {
+            background: #ffc107;
+            color: black;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+        .btn-delete {
+            background: #dc3545;
+        }
+        form {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a th:href="@{/teacher/question-bank/course/{id}(id=${course.id})}">← بازگشت به بانک</a>
+</div>
+
+<div class="container">
+    <h2>جزئیات سوال</h2>
+
+    <div class="question-info">
+        <div>
+            <span class="question-type"
+                  th:text="${question.questionType.name() == 'MULTIPLE_CHOICE' ? 'چندگزینه‌ای' : 'تشریحی'}">
+            </span>
+            <span class="question-title" th:text="${question.title}"></span>
+        </div>
+
+        <div class="question-meta">
+            <p>تاریخ ایجاد: <span th:text="${#temporals.format(question.createdAt, 'yyyy/MM/dd HH:mm')}"></span></p>
+            <p>آخرین ویرایش: <span th:text="${#temporals.format(question.updatedAt, 'yyyy/MM/dd HH:mm')}"></span></p>
+        </div>
+    </div>
+
+    <div class="question-text" th:text="${question.questionText}"></div>
+
+    <div th:if="${question.questionType.name() == 'MULTIPLE_CHOICE'}">
+        <h3>گزینه‌ها:</h3>
+        <div class="options-container">
+            <div th:each="option : ${question.options}"
+                 th:classappend="${option.isCorrect} ? 'correct-option' : ''"
+                 class="option-item">
+                <div>
+                    <strong>گزینه <span th:text="${option.orderIndex}"></span>:</strong>
+                    <span th:text="${option.optionText}"></span>
+                </div>
+                <div th:if="${option.isCorrect}" style="color: green; margin-top: 5px;">
+                    ✓ گزینه صحیح
+                </div>
+            </div>
+        </div>
+
+        <div class="question-meta">
+            <p>تعداد گزینه‌ها: <span th:text="${question.options.size()}"></span></p>
+            <p>گزینه‌ها تصادفی نمایش داده می‌شوند:
+                <span th:if="${question.shuffleOptions}">بله</span>
+                <span th:unless="${question.shuffleOptions}">خیر</span>
+            </p>
+        </div>
+    </div>
+
+    <div th:if="${question.questionType.name() == 'DESCRIPTIVE'
+             && question.sampleAnswer != null
+             && !question.sampleAnswer.empty}">
+        <h3>پاسخ نمونه:</h3>
+        <div class="sample-answer" th:text="${question.sampleAnswer}"></div>
+    </div>
+
+    <div th:if="${question.questionType.name() == 'DESCRIPTIVE'
+             && question.expectedAnswerLength != null
+             && question.expectedAnswerLength > 0}">
+        <div class="question-meta">
+            <p>طول مورد انتظار پاسخ: <span th:text="${question.expectedAnswerLength}"></span> کاراکتر</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a th:href="@{/teacher/question-bank/question/{id}/edit(id=${question.id}, courseId=${course.id})}"
+           class="btn btn-edit">✏️ ویرایش سوال</a>
+
+        <form th:action="@{/teacher/question-bank/question/{id}/delete(id=${question.id})}"
+              method="post">
+            <input type="hidden" name="courseId" th:value="${course.id}">
+            <button type="submit" class="btn btn-delete"
+                    onclick="return confirm('آیا از حذف این سوال اطمینان دارید؟')">
+                🗑️ حذف سوال
+            </button>
+        </form>
+
+        <a th:href="@{/teacher/question-bank/course/{id}(id=${course.id})}"
+           class="btn btn-back">← بازگشت</a>
+    </div>
+</div>
+</body>
+</html>

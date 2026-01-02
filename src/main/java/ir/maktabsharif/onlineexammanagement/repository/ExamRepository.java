@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface ExamRepository extends JpaRepository<Exam, Long> {
@@ -19,5 +20,11 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
                         " e.course.id = :courseId and e.teacher.id = :teacherId ")
     List<Exam> findByCourseIdAndTeacherId(@Param("courseId") Long courseId,
                                           @Param("teacherId") Long teacherId);
+
+    @Query("SELECT DISTINCT e FROM Exam e " +
+            "LEFT JOIN FETCH e.course " +
+            "LEFT JOIN FETCH e.teacher " +
+            "WHERE e.id = :id")
+    Optional<Exam> findByIdWithCourseAndTeacher(@Param("id") Long id);
 
 }

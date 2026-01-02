@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>افزودن سوال از بانک</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .exam-info {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        .search-box {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-back {
+            background: #6c757d;
+        }
+        .question-list {
+            margin-top: 20px;
+        }
+        .question-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .question-type {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #e9ecef;
+            margin-right: 10px;
+        }
+        .question-text {
+            color: #666;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .add-form {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        .score-input {
+            width: 80px;
+            padding: 5px;
+            margin: 0 5px;
+        }
+        .add-btn {
+            background: #28a745;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .no-questions {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            background: white;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a th:href="@{/teacher/questions/exam/{id}(id=${exam.id})}">← بازگشت</a>
+</div>
+
+<div class="exam-info">
+    <h2>افزودن سوال از بانک</h2>
+    <p><strong>آزمون:</strong> <span th:text="${exam.title}"></span></p>
+    <p><strong>دوره:</strong> <span th:text="${exam.course.title}"></span></p>
+</div>
+
+<div class="search-box">
+    <form method="get" th:action="@{/teacher/questions/exam/{id}/add-from-bank(id=${exam.id})}">
+        <input type="text" name="title" placeholder="عنوان سوال" th:value="${searchTitle}">
+
+        <select name="questionType">
+            <option value="">همه انواع</option>
+            <option th:each="type : ${questionTypes}"
+                    th:value="${type}"
+                    th:text="${type.name() == 'MULTIPLE_CHOICE' ? 'چندگزینه‌ای' : 'تشریحی'}"
+                    th:selected="${searchQuestionType == type.name()}"></option>
+        </select>
+
+        <button type="submit">🔍 جستجو</button>
+        <a th:href="@{/teacher/questions/exam/{id}/add-from-bank(id=${exam.id})}">
+            <button type="button">❌ پاک کردن</button>
+        </a>
+    </form>
+</div>
+
+<div class="question-list">
+    <div th:if="${bankQuestions.empty}" class="no-questions">
+        <p>هیچ سوالی در بانک پیدا نشد.</p>
+        <p>می‌توانید سوال جدید ایجاد کنید.</p>
+        <a th:href="@{/teacher/questions/exam/{id}/create-new/select-type(id=${exam.id})}"
+           style="background: #17a2b8; color: white; padding: 10px; text-decoration: none;">
+            ایجاد سوال جدید
+        </a>
+    </div>
+
+    <div th:each="question : ${bankQuestions}">
+        <div class="question-card">
+            <div>
+                    <span class="question-type"
+                          th:text="${question.questionType.name() == 'MULTIPLE_CHOICE' ? 'چندگزینه‌ای' : 'تشریحی'}">
+                    </span>
+                <span class="question-title" th:text="${question.title}"></span>
+            </div>
+
+            <div class="question-text">
+                    <span th:if="${#strings.length(question.questionText) > 100}"
+                          th:text="${#strings.substring(question.questionText, 0, 100)} + '...'"></span>
+                <span th:unless="${#strings.length(question.questionText) > 100}"
+                      th:text="${question.questionText}"></span>
+            </div>
+
+            <div th:if="${question.questionType.name() == 'MULTIPLE_CHOICE'}" style="font-size: 12px; color: #888;">
+                <span th:text="${question.options.size()}"></span> گزینه
+            </div>
+
+            <div class="add-form">
+                <form th:action="@{/teacher/questions/exam/{id}/add-from-bank(id=${exam.id})}"
+                      method="post">
+                    <input type="hidden" name="questionId" th:value="${question.id}">
+
+                    <label>نمره:</label>
+                    <input type="number" name="score" value="1.0" step="0.5" min="0" max="100"
+                           class="score-input">
+
+                    <button type="submit" class="add-btn">➕ افزودن به آزمون</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

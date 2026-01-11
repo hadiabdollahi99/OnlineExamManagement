@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>شرکت در آزمون</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .timer {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .exam-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+        .question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .nav-btn {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        .nav-btn:hover {
+            background: #f8f9fa;
+        }
+        .nav-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .nav-btn.answered {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .question-container {
+            margin: 20px 0;
+        }
+        .question-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .question-text {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .options-container {
+            margin: 20px 0;
+        }
+        .option-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option-item:hover {
+            background: #f8f9fa;
+        }
+        .option-item.selected {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .descriptive-answer {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            resize: vertical;
+            font-family: Arial;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-prev {
+            background: #6c757d;
+        }
+        .btn-next {
+            background: #007bff;
+        }
+        .btn-submit {
+            background: #28a745;
+        }
+        .btn-save {
+            background: #17a2b8;
+            margin-right: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .auto-save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+
+    <!-- بارگذاری فایل‌های JavaScript -->
+    <script src="/js/exam-timer.js"></script>
+    <script src="/js/exam-autosave.js"></script>
+    <script src="/js/student-exam.js"></script>
+</head>
+<body>
+<div class="header">
+    <div>
+        <a href="/student/dashboard" style="color: white; text-decoration: none;">← بازگشت</a>
+    </div>
+    <div class="timer" id="timer-display">00:00:00</div>
+</div>
+
+<div class="exam-container">
+    <h3 style="text-align: center; margin-bottom: 20px;">شرکت در آزمون</h3>
+
+    <div class="warning">
+        ⚠ توجه: پس از ارسال آزمون نمی‌توانید تغییری ایجاد کنید. پاسخ‌های شما هر 30 ثانیه به طور خودکار ذخیره می‌شود.
+    </div>
+
+    <div class="question-nav" id="question-nav">
+        <!-- دکمه‌های ناوبری سوالات با JavaScript ساخته می‌شوند -->
+    </div>
+
+    <div class="question-container" id="question-container">
+        <!-- سوالات با JavaScript نمایش داده می‌شوند -->
+    </div>
+
+    <div class="navigation-buttons">
+        <button id="prev-btn" class="btn btn-prev">← سوال قبلی</button>
+
+        <div>
+            <button id="save-btn" class="btn btn-save">💾 ذخیره پاسخ</button>
+            <button id="next-btn" class="btn btn-next">سوال بعدی →</button>
+            <button id="submit-btn" class="btn btn-submit" style="display: none;">📤 ارسال آزمون</button>
+        </div>
+    </div>
+
+    <form id="exam-form" th:action="@{/student/exam/{id}/submit(id=${participationId})}"
+          method="post" style="display: none;"></form>
+</div>
+
+<div class="auto-save-indicator" id="auto-save-indicator">
+    ✅ پاسخ ذخیره شد
+</div>
+
+<!-- داده‌های مورد نیاز برای JavaScript -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        // داده‌ها را از Thymeleaf بگیر
+        const examData = {
+            questions: /*[[${questions}]]*/ [],
+            participationId: /*[[${participationId}]]*/ 0,
+            remainingTime: /*[[${remainingTime}]]*/ 0
+        };
+
+        console.log('Initializing exam with data:', examData);
+
+        // مقداردهی اولیه
+        studentExam.initialize(examData);
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

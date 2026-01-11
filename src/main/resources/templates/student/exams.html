@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>آزمون‌های دوره</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .course-info {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: white;
+            margin: 0 3px;
+        }
+        .btn-start {
+            background: #28a745;
+        }
+        .btn-view {
+            background: #007bff;
+        }
+        .btn-disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .no-exams {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .exam-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-taken {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .success {
+            color: green;
+            padding: 10px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            margin: 10px 0;
+        }
+        .error {
+            color: #721c24;
+            padding: 10px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/student/dashboard">داشبورد</a>
+    <a href="/student/courses">دوره‌های من</a>
+    <a th:href="@{/student/courses}">← بازگشت</a>
+</div>
+
+<div class="course-info">
+    <h3>آزمون‌های دوره: <span th:text="${course.title}"></span></h3>
+    <p>کد دوره: <span th:text="${course.courseCode}"></span></p>
+    <p>استاد: <span th:text="${course.teacher.firstName + ' ' + course.teacher.lastName}"></span></p>
+</div>
+
+<div th:if="${successMessage}" class="success">
+    <span th:text="${successMessage}"></span>
+</div>
+
+<div th:if="${errorMessage}" class="error">
+    <span th:text="${errorMessage}"></span>
+</div>
+
+<div th:if="${exams.empty}" class="no-exams">
+    <p>هیچ آزمونی برای این دوره تعریف نشده است.</p>
+</div>
+
+<div th:unless="${exams.empty}">
+    <table>
+        <thead>
+        <tr>
+            <th>عنوان آزمون</th>
+            <th>توضیحات</th>
+            <th>زمان (دقیقه)</th>
+            <th>تعداد سوالات</th>
+            <th>نمره کل</th>
+            <th>وضعیت</th>
+            <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="exam : ${exams}">
+            <td th:text="${exam.title}"></td>
+            <td>
+                        <span th:if="${exam.description != null && exam.description.length() > 50}"
+                              th:text="${exam.description.substring(0, 50)} + '...'"></span>
+                <span th:unless="${exam.description != null && exam.description.length() > 50}"
+                      th:text="${exam.description}"></span>
+            </td>
+            <td th:text="${exam.durationMinutes}"></td>
+            <td th:text="${exam.questionCount}"></td>
+            <td th:text="${exam.totalScore}"></td>
+            <td>
+                        <span th:if="${!exam.isActive}"
+                              class="exam-status status-inactive">غیرفعال</span>
+                <span th:if="${exam.isActive && exam.hasTakenExam}"
+                      class="exam-status status-taken">شرکت کرده‌اید</span>
+                <span th:if="${exam.isActive && !exam.hasTakenExam}"
+                      class="exam-status status-available">قابل شرکت</span>
+            </td>
+            <td>
+                <form th:if="${exam.isActive && !exam.hasTakenExam}"
+                      th:action="@{/student/exams/{id}/start(id=${exam.id})}"
+                      method="post">
+                    <button type="submit" class="btn btn-start">▶ شروع آزمون</button>
+                </form>
+
+                <span th:if="${exam.hasTakenExam}">
+                            <span style="color: green;">نمره: <span th:text="${exam.score}"></span></span>
+                            <br>
+                            <span style="font-size: 12px; color: #666;">
+                                تاریخ: <span th:text="${#temporals.format(exam.takenAt, 'yyyy/MM/dd')}"></span>
+                            </span>
+                        </span>
+
+                <span th:if="${!exam.isActive}"
+                      class="btn btn-disabled">غیرفعال</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

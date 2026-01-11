@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>تصحیح آزمون‌ها</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: white;
+            margin: 0 3px;
+        }
+        .btn-participants {
+            background: #007bff;
+        }
+
+        .no-exams {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .exam-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/grading/exams">تصحیح آزمون‌ها</a>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">خروج</button>
+    </form>
+</div>
+
+<h2>📝 تصحیح آزمون‌ها</h2>
+
+<div class="exam-stats">
+    <div class="stat-item">
+        <div class="stat-number" th:text="${exams.size()}">0</div>
+        <div>تعداد آزمون‌ها</div>
+    </div>
+</div>
+
+<div th:if="${exams.empty}" class="no-exams">
+    <p>هیچ آزمونی برای تصحیح وجود ندارد.</p>
+</div>
+
+<div th:unless="${exams.empty}">
+    <table>
+        <thead>
+        <tr>
+            <th>عنوان آزمون</th>
+            <th>دوره</th>
+            <th>تاریخ ایجاد</th>
+            <th>تعداد سوالات</th>
+            <th>تعداد شرکت‌کنندگان</th>
+            <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="exam : ${exams}">
+            <td th:text="${exam.title}"></td>
+            <td th:text="${exam.course.title}"></td>
+            <td th:text="${#temporals.format(exam.createdAt, 'yyyy/MM/dd')}"></td>
+            <td th:text="${exam.examQuestions.size()}"></td>
+            <td>
+                <span th:text="${exam.participations != null ? exam.participations.size() : 0}"></span>
+            </td>
+            <td>
+                <a th:href="@{/teacher/grading/exam/{id}/participants(id=${exam.id})}"
+                   class="btn btn-participants">👥 شرکت‌کنندگان</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

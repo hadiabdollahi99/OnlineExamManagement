@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>شرکت‌کنندگان آزمون</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .exam-info {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        th {
+            background: #f8f9fa;
+        }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: white;
+            margin: 0 3px;
+        }
+        .btn-grade {
+            background: #ffc107;
+            color: black;
+        }
+        .status-badge {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-auto-submitted {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <a href="/teacher/dashboard">داشبورد</a>
+    <a href="/teacher/grading/exams">← بازگشت</a>
+</div>
+
+<div class="exam-info">
+    <h3>شرکت‌کنندگان آزمون: <span th:text="${exam.title}"></span></h3>
+    <p><strong>دوره:</strong> <span th:text="${exam.course.title}"></span></p>
+    <p><strong>زمان آزمون:</strong> <span th:text="${exam.durationMinutes}"></span> دقیقه</p>
+    <p><strong>نمره کل:</strong> <span th:text="${exam.totalScore}"></span></p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number" th:text="${statistics.totalParticipants}">0</div>
+        <div class="stat-label">کل شرکت‌کنندگان</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" th:text="${statistics.completedCount}">0</div>
+        <div class="stat-label">تکمیل شده</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" th:text="${statistics.averageScore}">0</div>
+        <div class="stat-label">میانگین نمره</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" th:text="${statistics.maxScore}">0</div>
+        <div class="stat-label">بالاترین نمره</div>
+    </div>
+</div>
+
+<h3>لیست شرکت‌کنندگان</h3>
+
+<div th:if="${participants.empty}" style="text-align: center; padding: 40px; color: #666; background: white; border: 1px solid #ddd;">
+    <p>هیچ شرکت‌کننده‌ای برای این آزمون وجود ندارد.</p>
+</div>
+
+<div th:unless="${participants.empty}">
+    <table>
+        <thead>
+        <tr>
+            <th>نام دانشجو</th>
+            <th>زمان شروع</th>
+            <th>زمان پایان</th>
+            <th>مدت زمان</th>
+            <th>نمره</th>
+            <th>وضعیت</th>
+            <th>تصحیح شده</th>
+            <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${participants}">
+            <td th:text="${p.studentName}"></td>
+            <td th:text="${#temporals.format(p.startedAt, 'HH:mm')}"></td>
+            <td th:text="${p.finishedAt != null ? #temporals.format(p.finishedAt, 'HH:mm') : '-'}"></td>
+            <td>
+                12 دقیقه
+<!--                        <span th:if="${p.timeSpentMinutes != null}"-->
+<!--                              th:text="${p.timeSpentMinutes} دقیقه"></span>-->
+<!--                <span th:if="${p.timeSpentMinutes == null}">-</span>-->
+            </td>
+            <td>
+                        <span th:if="${p.totalScore != null}"
+                              th:class="${p.totalScore >= p.maxScore * 0.8 ? 'score-high' :
+                                       (p.totalScore >= p.maxScore * 0.5 ? 'score-medium' : 'score-low')}"
+                              th:text="${p.totalScore} + ' از ' + ${p.maxScore}"></span>
+                <span th:if="${p.totalScore == null}">-</span>
+            </td>
+            <td>
+                        <span th:if="${p.status == 'COMPLETED'}"
+                              class="status-badge status-completed">تکمیل شده</span>
+                <span th:if="${p.status == 'IN_PROGRESS'}"
+                      class="status-badge status-in-progress">در حال انجام</span>
+                <span th:if="${p.status == 'AUTO_SUBMITTED'}"
+                      class="status-badge status-auto-submitted">ارسال خودکار</span>
+            </td>
+            <td>
+                <span th:if="${p.isGraded}" style="color: green;">✓</span>
+                <span th:unless="${p.isGraded}" style="color: orange;">✗</span>
+            </td>
+            <td>
+                <a th:href="@{/teacher/grading/participation/{id}/grade(id=${p.id})}"
+                   class="btn btn-grade">✏️ تصحیح</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

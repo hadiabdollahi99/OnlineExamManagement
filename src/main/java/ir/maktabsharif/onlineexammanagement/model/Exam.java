@@ -50,6 +50,9 @@ public class Exam extends BaseEntity<Long> implements Serializable {
     @OneToMany(mappedBy = "exam", cascade = CascadeType.REMOVE)
     private List<ExamQuestion> examQuestions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "exam", cascade = CascadeType.REMOVE)
+    private List<StudentExamParticipation> participations = new ArrayList<>();
+
     public Double getTotalScore() {
         if (examQuestions == null || examQuestions.isEmpty()) {
             return 0.0;

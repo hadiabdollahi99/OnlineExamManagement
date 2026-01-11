@@ -1,23 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>داشبورد دانشجو</title>
     <style>
-        body { font-family: Arial; margin: 20px; }
-        .menu { background: #333; padding: 10px; margin-bottom: 20px; }
-        .menu form { color: white; margin: 0 10px; text-decoration: none;}
-        .menu a { color: white; margin: 0 10px; text-decoration: none; }
+        body {
+            font-family: Arial;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        .welcome {
+            background: #f0f0f0;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .course-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background: white;
+        }
+        .course-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .course-info {
+            color: #666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .btn {
+            padding: 8px 15px;
+            text-decoration: none;
+            color: white;
+            margin: 5px;
+            display: inline-block;
+        }
+        .btn-exams {
+            background: #28a745;
+        }
     </style>
 </head>
 <body>
-<div class="menu">
+<div class="header">
     <a href="/student/dashboard">داشبورد</a>
     <a href="/student/courses">دوره‌های من</a>
+    <a href="/student/exam-results">نتایج آزمون‌ها</a>
     <form th:action="@{/logout}" method="post">
         <button type="submit">خروج</button>
     </form>
 </div>
-<h2>پنل دانشجویان</h2>
+
+<div class="welcome">
+    <h2>👨‍🎓 پنل دانشجو</h2>
+    <p>خوش آمدید <strong th:text="${studentName}"></strong></p>
+</div>
+
+<h3>📚 دوره‌های شما</h3>
+
+<div th:if="${courses.empty}" style="text-align: center; padding: 40px; color: #666;">
+    <p>شما در هیچ دوره‌ای ثبت‌نام نکرده‌اید.</p>
+    <p>لطفاً با مدیر سیستم تماس بگیرید.</p>
+</div>
+
+<div th:unless="${courses.empty}" class="courses-grid">
+    <div th:each="course : ${courses}" class="course-card">
+        <div class="course-title" th:text="${course.title}"></div>
+        <div class="course-info">کد دوره: <span th:text="${course.courseCode}"></span></div>
+        <div class="course-info">استاد: <span th:text="${course.teacher.firstName + ' ' + course.teacher.lastName}"></span></div>
+        <div class="course-info">تاریخ پایان: <span th:text="${#temporals.format(course.endDate, 'yyyy/MM/dd')}"></span></div>
+
+        <div style="margin-top: 15px;">
+            <a th:href="@{/student/courses/{id}/exams(id=${course.id})}"
+               class="btn btn-exams">📝 آزمون‌های دوره</a>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -1,16 +1,16 @@
 package ir.maktabsharif.onlineexammanagement.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @Entity
@@ -42,7 +42,7 @@ public class Course extends BaseEntity<Long> implements Serializable {
     private Teacher teacher;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
-    private Set<StudentCourses> students = new HashSet<>();
+    private List<StudentCourses> students = new ArrayList<>();
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Exam> courseExams = new ArrayList<>();

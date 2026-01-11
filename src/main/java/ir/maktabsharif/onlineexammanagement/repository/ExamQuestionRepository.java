@@ -29,4 +29,7 @@ public interface ExamQuestionRepository extends JpaRepository<ExamQuestion, Long
     @Query("SELECT eq FROM ExamQuestion eq WHERE " +
             "eq.question.id = :questionId")
     ExamQuestion findByQuestionId(@Param("questionId") Long questionId);
+
+    @Query("SELECT eq FROM ExamQuestion eq JOIN FETCH eq.exam e JOIN FETCH eq.question q WHERE eq.id = :examQuestionId")
+    Optional<ExamQuestion> findByIdWithExam(@Param("examQuestionId") Long examQuestionId);
 }
